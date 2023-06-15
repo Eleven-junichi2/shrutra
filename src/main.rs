@@ -1,11 +1,8 @@
-use core::panic;
 use std::collections::HashMap;
 use std::default::Default;
 use std::env;
-use std::error;
 // use std::ffi::OsString;
 use std::fs;
-use std::io::ErrorKind;
 // use std::string::ToString;
 use std::path::PathBuf;
 
@@ -63,23 +60,18 @@ fn load_file_from_candidate_paths<'a>(
 }
 
 fn load_config<'a>(filepath_candidates: &mut impl Iterator<Item = &'a PathBuf>) -> Config {
-    // -try to load config file-
-    // --
     toml::from_str(&load_file_from_candidate_paths(filepath_candidates).unwrap())
         .expect("invalid config file")
 }
 
-// fn load_i18ntexts() -> HashMap<String, Value> {
-//     let i18n_filepath = exe_dirpath
-//         .join(I18N_DIRNAME)
-//         .join(config.language.to_string() + ".json");
-//     let content = fs::read_to_string(&i18n_filepath).expect(&format!(
-//         "failed to load localization file (it should be at `{}`)",
-//         &i18n_filepath.display()
-//     ));
-//     let i18ntexts: HashMap<String, Value> =
-//         serde_json::from_str(&content).expect("invalid json file");
-// }
+fn load_i18ntexts<'a>(
+    filepath_candidates: &mut impl Iterator<Item = &'a PathBuf>,
+) -> HashMap<String, Value> {
+    serde_json::from_str::<HashMap<String, Value>>(
+        &load_file_from_candidate_paths(filepath_candidates).unwrap(),
+    )
+    .expect("invalid json file")
+}
 
 fn main() {
     let exe_path = env::current_exe().unwrap();
@@ -98,11 +90,17 @@ fn main() {
         .iter(),
     );
 
-    // let i18ntexts = load_i18ntexts();
-    // todo!("implement process for make config file when first execution of app");
-    // --
+    let i18nfilepath_part = PathBuf::from(I18N_DIRNAME)
+        .join("cli".to_string())
+        .join(config.language.to_string() + ".json");
 
-    // --
+    let i18ntexts = load_i18ntexts(
+        &mut [
+            exe_dirpath.join(&i18nfilepath_part),
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(&i18nfilepath_part),
+        ]
+        .iter(),
+    );
 
     // let i18n_filepath = exe_dirpath
     //     .join(I18N_DIRNAME)
