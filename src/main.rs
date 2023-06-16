@@ -6,9 +6,10 @@ use std::fs;
 // use std::string::ToString;
 use std::path::PathBuf;
 
-use inquire::Select;
+use inquire::{Select, Text};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use sha2::{Digest, Sha256};
 use strum_macros::Display;
 use strum_macros::EnumString;
 use toml;
@@ -104,19 +105,39 @@ fn main() {
 
     // as_str().unwrap() to ged rid of double quotes
     println!("{}", i18ntexts["welcome"].as_str().unwrap());
-    let options = vec![
-        i18ntexts["go_to_recipe_making"].as_str().unwrap(),
-        i18ntexts["make_hashed_password"].as_str().unwrap(),
-        i18ntexts["exit"].as_str().unwrap(),
-    ];
-    let selected_option = Select::new("", options)
-        .with_help_message(i18ntexts["help_msg_Select"].as_str().unwrap())
-        .prompt()
-        .unwrap();
+    let selected_option = Select::new(
+        "",
+        vec![
+            i18ntexts["go_to_recipe_making"].as_str().unwrap(),
+            i18ntexts["make_hashed_password"].as_str().unwrap(),
+            i18ntexts["exit"].as_str().unwrap(),
+        ],
+    )
+    .with_help_message(i18ntexts["help_msg_Select"].as_str().unwrap())
+    .prompt()
+    .unwrap();
     if selected_option == i18ntexts["go_to_recipe_making"].as_str().unwrap() {
-        println!("{}", selected_option);
+        // loop {
+        //     let selected_option = Select::new(
+        //         "",
+        //         vec![
+        //             i18ntexts["go_to_recipe_making"].as_str().unwrap(),
+        //             i18ntexts["make_hashed_password"].as_str().unwrap(),
+        //             i18ntexts["exit"].as_str().unwrap(),
+        //         ],
+        //     )
+        //     .with_help_message(i18ntexts["help_msg_Select"].as_str().unwrap())
+        //     .prompt()
+        //     .unwrap();
+        // }
     } else if selected_option == i18ntexts["make_hashed_password"].as_str().unwrap() {
-        println!("{}", selected_option);
+        let str_to_be_hased = Text::new(i18ntexts["input_password"].as_str().unwrap())
+            .prompt()
+            .unwrap();
+        let mut hasher = Sha256::new();
+        hasher.update(str_to_be_hased);
+        let hash_value = hasher.finalize();
+        println!("{:x}", hash_value);
     } else if selected_option == i18ntexts["exit"].as_str().unwrap() {
         println!("{}", selected_option);
     }
