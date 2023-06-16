@@ -9,12 +9,12 @@ use std::path::PathBuf;
 use inquire::{Select, Text};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use sha2::{Digest, Sha256};
 use strum_macros::Display;
 use strum_macros::EnumString;
 use toml;
 
 mod shepatra;
+use shepatra::{hash_with_recipe, HashFuncNames, Recipe};
 
 const CONFIG_FILENAME: &'static str = "config.toml";
 const I18N_DIRNAME: &'static str = "i18n";
@@ -134,10 +134,15 @@ fn main() {
         let str_to_be_hased = Text::new(i18ntexts["input_password"].as_str().unwrap())
             .prompt()
             .unwrap();
-        let mut hasher = Sha256::new();
-        hasher.update(str_to_be_hased);
-        let hash_value = hasher.finalize();
-        println!("{:x}", hash_value);
+        println!(
+            "{}",
+            hash_with_recipe(
+                &str_to_be_hased,
+                &Recipe {
+                    layers: vec![HashFuncNames::SHA256]
+                }
+            )
+        );
     } else if selected_option == i18ntexts["exit"].as_str().unwrap() {
         println!("{}", selected_option);
     }
