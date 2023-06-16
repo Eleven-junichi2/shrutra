@@ -27,7 +27,6 @@ pub fn hash_with_recipe(str_to_be_hashed: &String, recipe: &Recipe) -> String {
             .iter()
             .map(|x| format!("{:x}", *x))
             .collect::<String>()
-        // str_to_be_hashed =  );
     }
     str_to_be_hashed
 }
