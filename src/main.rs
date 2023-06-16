@@ -6,12 +6,12 @@ use std::fs;
 // use std::string::ToString;
 use std::path::PathBuf;
 
+use inquire::Select;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use strum_macros::Display;
 use strum_macros::EnumString;
 use toml;
-// use inquire::Text;
 
 mod shepatra;
 
@@ -102,22 +102,22 @@ fn main() {
         .iter(),
     );
 
-    // let i18n_filepath = exe_dirpath
-    //     .join(I18N_DIRNAME)
-    //     .join(config.language.to_string() + ".json");
-    // let content = fs::read_to_string(&i18n_filepath).expect(&format!(
-    //     "failed to load localization file (it should be at `{}`)",
-    //     &i18n_filepath.display()
-    // ));
-    // let i18ntexts: HashMap<String, Value> =
-    //     serde_json::from_str(&content).expect("invalid json file");
-    // println!("-result-");
-    // println!("i18ntexts {:?}", i18ntexts);
-    // println!("config {:?}", config);
-    // let name = Text::new("").prompt();
-
-    // match name {
-    //     Ok(name) => println!("Hello {}", name),
-    //     Err(_) => println!("An error happened when asking for your name, try again later."),
-    // }
+    // as_str().unwrap() to ged rid of double quotes
+    println!("{}", i18ntexts["welcome"].as_str().unwrap());
+    let options = vec![
+        i18ntexts["go_to_recipe_making"].as_str().unwrap(),
+        i18ntexts["make_hashed_password"].as_str().unwrap(),
+        i18ntexts["exit"].as_str().unwrap(),
+    ];
+    let selected_option = Select::new("", options)
+        .with_help_message(i18ntexts["help_msg_Select"].as_str().unwrap())
+        .prompt()
+        .unwrap();
+    if selected_option == i18ntexts["go_to_recipe_making"].as_str().unwrap() {
+        println!("{}", selected_option);
+    } else if selected_option == i18ntexts["make_hashed_password"].as_str().unwrap() {
+        println!("{}", selected_option);
+    } else if selected_option == i18ntexts["exit"].as_str().unwrap() {
+        println!("{}", selected_option);
+    }
 }
