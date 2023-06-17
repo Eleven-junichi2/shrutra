@@ -1,4 +1,5 @@
 // TODO: improve error handling
+// TODO: refactoring code
 
 use inquire::{Select, Text};
 use serde::{Deserialize, Serialize};
