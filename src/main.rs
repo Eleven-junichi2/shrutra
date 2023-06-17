@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::default::Default;
 use std::env;
 use std::fs;
+use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
 use strum::IntoEnumIterator;
@@ -71,6 +72,14 @@ fn load_i18ntexts<'a>(
         &load_file_from_candidate_paths(filepath_candidates).unwrap(),
     )
     .expect("invalid json file")
+}
+
+fn load_recipes<'a>(filepath_candidates: &mut impl Iterator<Item = &'a PathBuf>) {
+    todo!("load_recipes")
+}
+
+fn save_recipes<'a>(filepath: &Path) {
+    todo!("save_recipes")
 }
 
 fn main() {
