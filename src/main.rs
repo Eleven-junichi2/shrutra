@@ -7,6 +7,7 @@ use std::default::Default;
 use std::env;
 use std::fs;
 use std::fs::File;
+use std::io::ErrorKind;
 use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -53,7 +54,7 @@ impl Default for Config {
 
 fn load_file_from_candidate_paths<'a>(
     filepath_candidates: &mut impl Iterator<Item = &'a PathBuf>,
-) -> Result<String, String> {
+) -> Result<String, std::io::Error> {
     let content = loop {
         if let Some(path_) = filepath_candidates.next() {
             match fs::read_to_string(&path_) {
@@ -63,7 +64,10 @@ fn load_file_from_candidate_paths<'a>(
                 }
             };
         } else {
-            return Err("file not found in given candidate paths".to_string());
+            return Err(std::io::Error::new(
+                ErrorKind::NotFound,
+                "All given file path candidates are not found.",
+            ));
         };
     };
     Ok(content)
@@ -138,12 +142,14 @@ fn main() {
     )
     .unwrap();
 
-    let mut recipes: HashMap<String, Recipe> = match serde_json::from_str(
-        &load_file_from_candidate_paths(&mut vec![config.recipes_path_by_rules().unwrap()].iter())
-            .unwrap(),
+    let mut recipes: HashMap<String, Recipe> = match load_file_from_candidate_paths(
+        &mut vec![config.recipes_path_by_rules().unwrap()].iter(),
     ) {
-        Ok(recipes) => recipes,
-        Err(_) => HashMap::<String, Recipe>::new(),
+        Ok(recipes_json) => serde_json::from_str(&recipes_json).unwrap(),
+        Err(e) if e.kind() == ErrorKind::NotFound => HashMap::<String, Recipe>::new(),
+        Err(e) => {
+            panic!("{}", e);
+        }
     };
 
     // i18ntexts[""].as_str() to ged rid of double quotes
