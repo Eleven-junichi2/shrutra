@@ -1,2 +1,5 @@
 language="Japanese"
+relative_recipes_path_flag=true
 recipes_path="."
+recipes_path_from_exedir=true
+recipes_path_from_cwd=false

@@ -1,13 +1,12 @@
-// use blake2::{Blake2b512, Digests};
-// use base64ct::{Base64, Encoding};
 use digest::DynDigest;
 
 use blake2::{Blake2b512, Blake2s256};
+use serde::{Deserialize, Serialize};
 use sha2::{Sha256, Sha512};
 use sha3::{Sha3_256, Sha3_512};
 use strum_macros::{Display, EnumIter, EnumString};
 
-#[derive(EnumIter, Debug, Display, EnumString)]
+#[derive(EnumIter, Debug, Display, EnumString, Serialize, Deserialize)]
 pub enum HashFuncNames {
     #[strum(serialize = "SHA-256")]
     SHA256,
@@ -23,7 +22,7 @@ pub enum HashFuncNames {
     Blake2s256,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Recipe {
     pub layers: Vec<HashFuncNames>,
 }
