@@ -1,6 +1,7 @@
 // TODO: improve error handling
 // TODO: refactoring code
 
+use copypasta::{ClipboardContext, ClipboardProvider};
 use inquire::{Select, Text};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -226,10 +227,12 @@ fn main() {
             let str_to_be_hased = Text::new(i18ntexts["input_password"].as_str())
                 .prompt()
                 .unwrap();
-            println!(
-                "{}",
-                hash_with_recipe(&str_to_be_hased, &recipes[&selected_recipe])
-            );
+            let mut clipboard = ClipboardContext::new().unwrap();
+            let hashed_password = hash_with_recipe(&str_to_be_hased, &recipes[&selected_recipe]);
+            println!("{}", i18ntexts["password_generated"].as_str());
+            println!("{}", &hashed_password);
+            println!("{}", i18ntexts["copied_to_clipboard"].as_str());
+            clipboard.set_contents(hashed_password).unwrap();
         } else if selected_option == i18ntexts["exit"].as_str() {
             break;
         }

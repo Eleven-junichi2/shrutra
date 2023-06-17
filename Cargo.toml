@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 blake2 = "0.10.6"
 blake3 = "1.4.0"
+copypasta = "0.8.2"
 digest = "0.10.7"
 hex-literal = "0.4.1"
 inquire = "0.6.2"
