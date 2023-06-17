@@ -1,6 +1,6 @@
-use digest::{typenum::U8, DynDigest};
+use digest::{DynDigest};
 
-use blake2::{Blake2b, Blake2b512, Blake2s, Blake2s256};
+use blake2::{Blake2b512, Blake2s256};
 use blake3;
 use serde::{Deserialize, Serialize};
 use sha2::{Sha256, Sha512};
@@ -21,10 +21,6 @@ pub enum HashFuncNames {
     Blake2b512,
     #[strum(serialize = "Blake2s256")]
     Blake2s256,
-    #[strum(serialize = "Blake2b")]
-    Blake2b,
-    #[strum(serialize = "Blake2s")]
-    Blake2s,
     #[strum(serialize = "Blake3")]
     Blake3,
 }
@@ -44,8 +40,6 @@ pub fn hash_with_recipe(str_to_be_hashed: &String, recipe: &Recipe) -> String {
             HashFuncNames::SHA3_512 => Box::new(Sha3_512::default()),
             HashFuncNames::Blake2s256 => Box::new(Blake2s256::default()),
             HashFuncNames::Blake2b512 => Box::new(Blake2b512::default()),
-            HashFuncNames::Blake2b => Box::new(Blake2b::<U8>::default()),
-            HashFuncNames::Blake2s => Box::new(Blake2s::<U8>::default()),
             HashFuncNames::Blake3 => {
                 let hash = blake3::hash(&str_to_be_hashed.as_bytes());
                 str_to_be_hashed = hash.to_hex().to_string();
