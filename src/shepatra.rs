@@ -1,11 +1,15 @@
 // use blake2::{Blake2b512, Digests};
 // use base64ct::{Base64, Encoding};
 use digest::DynDigest;
-use sha2::{Sha256, Sha512};
 
-#[derive(Debug)]
+use sha2::{Sha256, Sha512};
+use strum_macros::{Display, EnumIter, EnumString};
+
+#[derive(EnumIter, Debug, Display, EnumString)]
 pub enum HashFuncNames {
+    #[strum(serialize = "SHA-256")]
     SHA256,
+    #[strum(serialize = "SHA-512")]
     SHA512,
 }
 

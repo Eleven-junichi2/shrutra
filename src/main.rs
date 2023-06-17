@@ -1,14 +1,13 @@
-use std::collections::HashMap;
-use std::default::Default;
-use std::env;
-// use std::ffi::OsString;
-use std::fs;
-// use std::string::ToString;
-use std::path::PathBuf;
-
 use inquire::{Select, Text};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::collections::HashMap;
+use std::default::Default;
+use std::env;
+use std::fs;
+use std::path::PathBuf;
+use std::str::FromStr;
+use strum::IntoEnumIterator;
 use strum_macros::Display;
 use strum_macros::EnumString;
 use toml;
@@ -103,47 +102,91 @@ fn main() {
         .iter(),
     );
 
+    let mut recipes: HashMap<String, Recipe> = HashMap::new();
+
     // as_str().unwrap() to ged rid of double quotes
     println!("{}", i18ntexts["welcome"].as_str().unwrap());
-    let selected_option = Select::new(
-        "",
-        vec![
-            i18ntexts["go_to_recipe_making"].as_str().unwrap(),
-            i18ntexts["make_hashed_password"].as_str().unwrap(),
-            i18ntexts["exit"].as_str().unwrap(),
-        ],
-    )
-    .with_help_message(i18ntexts["help_msg_Select"].as_str().unwrap())
-    .prompt()
-    .unwrap();
-    if selected_option == i18ntexts["go_to_recipe_making"].as_str().unwrap() {
-        // loop {
-        //     let selected_option = Select::new(
-        //         "",
-        //         vec![
-        //             i18ntexts["go_to_recipe_making"].as_str().unwrap(),
-        //             i18ntexts["make_hashed_password"].as_str().unwrap(),
-        //             i18ntexts["exit"].as_str().unwrap(),
-        //         ],
-        //     )
-        //     .with_help_message(i18ntexts["help_msg_Select"].as_str().unwrap())
-        //     .prompt()
-        //     .unwrap();
-        // }
-    } else if selected_option == i18ntexts["make_hashed_password"].as_str().unwrap() {
-        let str_to_be_hased = Text::new(i18ntexts["input_password"].as_str().unwrap())
+    loop {
+        let selected_option = Select::new(
+            "",
+            vec![
+                i18ntexts["go_to_recipe_making"].as_str().unwrap(),
+                i18ntexts["make_hashed_password"].as_str().unwrap(),
+                i18ntexts["exit"].as_str().unwrap(),
+            ],
+        )
+        .with_help_message(i18ntexts["help_msg_Select"].as_str().unwrap())
+        .prompt()
+        .unwrap();
+        if selected_option == i18ntexts["go_to_recipe_making"].as_str().unwrap() {
+            let mut recipe = Recipe {
+                layers: Vec::<HashFuncNames>::new(),
+            };
+            loop {
+                let mut options = vec![
+                    i18ntexts["cancel"].as_str().unwrap().to_string(),
+                    i18ntexts["submit"].as_str().unwrap().to_string(),
+                ];
+                options.extend(
+                    HashFuncNames::iter()
+                        .map(|name| name.to_string())
+                        .collect::<Vec<String>>(),
+                );
+                let selected_option = Select::new(
+                    &recipe
+                        .layers
+                        .iter()
+                        .map(|name| name.to_string())
+                        .collect::<Vec<String>>()
+                        .join(","),
+                    options,
+                )
+                .with_help_message(i18ntexts["help_msg_Select"].as_str().unwrap())
+                .prompt()
+                .unwrap();
+                if selected_option.as_str() == i18ntexts["cancel"].as_str().unwrap() {
+                    break;
+                } else if HashFuncNames::iter().any(|name| name.to_string() == selected_option) {
+                    recipe
+                        .layers
+                        .push(HashFuncNames::from_str(selected_option.as_str()).unwrap());
+                } else if selected_option.as_str() == i18ntexts["submit"].as_str().unwrap() {
+                    let name_for_recipe =
+                        Text::new(i18ntexts["make_name_for_recipe"].as_str().unwrap())
+                            .prompt()
+                            .unwrap();
+                    recipes.insert(name_for_recipe, recipe);
+                    break;
+                }
+            }
+        } else if selected_option == i18ntexts["make_hashed_password"].as_str().unwrap() {
+            if recipes.is_empty() {
+                println!(
+                    "{}",
+                    i18ntexts["recipes_is_empty_plz_make"].as_str().unwrap()
+                );
+                continue;
+            }
+            let mut options = vec![i18ntexts["cancel"].as_str().unwrap().to_string()];
+            options.extend(recipes.keys().map(|key| key.clone()));
+            let selected_recipe = Select::new(
+                i18ntexts["which_recipe_would_you_like"].as_str().unwrap(),
+                options,
+            )
             .prompt()
             .unwrap();
-        println!(
-            "{}",
-            hash_with_recipe(
-                &str_to_be_hased,
-                &Recipe {
-                    layers: vec![HashFuncNames::SHA256]
-                }
-            )
-        );
-    } else if selected_option == i18ntexts["exit"].as_str().unwrap() {
-        println!("{}", selected_option);
+            if selected_recipe == i18ntexts["cancel"].as_str().unwrap() {
+                break;
+            }
+            let str_to_be_hased = Text::new(i18ntexts["input_password"].as_str().unwrap())
+                .prompt()
+                .unwrap();
+            println!(
+                "{}",
+                hash_with_recipe(&str_to_be_hased, &recipes[&selected_recipe])
+            );
+        } else if selected_option == i18ntexts["exit"].as_str().unwrap() {
+            break;
+        }
     }
 }
