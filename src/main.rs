@@ -98,9 +98,8 @@ impl Config {
 
 fn load_toml<'a, T: serde::de::DeserializeOwned>(
     filepath_candidates: &mut impl Iterator<Item = &'a PathBuf>,
-) -> T {
+) -> Result<T, toml::de::Error>{
     toml::from_str(&load_file_from_candidate_paths(filepath_candidates).unwrap())
-        .expect("invalid toml file")
 }
 
 fn save_recipes<P: AsRef<Path>>(
@@ -126,7 +125,7 @@ fn main() {
                 .join(&CONFIG_FILENAME),
         ]
         .iter(),
-    );
+    ).unwrap();
 
     let i18nfilepath_part = PathBuf::from(I18N_DIRNAME)
         .join("cli".to_string())
